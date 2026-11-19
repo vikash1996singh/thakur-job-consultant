@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import logoImg from '../assets/logo.png';
 import { getThemeClasses } from '../utils/theme';
 import { 
   Building2, 
@@ -18,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export const EmployerPortal = () => {
-  const { jobs, postNewJob, applications, theme, showToast } = useApp();
+  const { jobs, postNewJob, applications, candidateProfile, theme, showToast, loggedInUser } = useApp();
   const themeClasses = getThemeClasses(theme);
 
   const [activeTab, setActiveTab] = useState('manage-jobs'); // 'manage-jobs' | 'post-job' | 'applicants'
@@ -46,8 +47,40 @@ export const EmployerPortal = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.description) {
+    if (!formData.title.trim() || !formData.description.trim()) {
       showToast("Please fill in Job Title and Description", "warning");
+      return;
+    }
+    if (formData.title.trim().length > 100) {
+      showToast("Job Title cannot exceed 100 characters", "warning");
+      return;
+    }
+    if (formData.company.trim().length > 100) {
+      showToast("Company Name cannot exceed 100 characters", "warning");
+      return;
+    }
+    if (formData.experience.trim().length > 50) {
+      showToast("Experience level cannot exceed 50 characters", "warning");
+      return;
+    }
+    if (formData.salary.trim().length > 60) {
+      showToast("Salary package cannot exceed 60 characters", "warning");
+      return;
+    }
+    if (formData.location.trim().length > 80) {
+      showToast("Location cannot exceed 80 characters", "warning");
+      return;
+    }
+    if (formData.skills.trim().length > 200) {
+      showToast("Skills cannot exceed 200 characters", "warning");
+      return;
+    }
+    if (formData.externalUrl && formData.externalUrl.trim().length > 250) {
+      showToast("External URL cannot exceed 250 characters", "warning");
+      return;
+    }
+    if (formData.description.trim().length > 3000) {
+      showToast("Job Description cannot exceed 3000 characters", "warning");
       return;
     }
 
@@ -70,33 +103,80 @@ export const EmployerPortal = () => {
       
       {/* 🏢 Employer Dashboard Header */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-semibold mb-2">
-            <Building2 className="w-3.5 h-3.5" />
-            Employer Verification Portal
+        <div className="flex items-start gap-4">
+          <div className="bg-white p-1.5 rounded-2xl shadow-xs border border-white/20 shrink-0 hidden sm:flex items-center justify-center">
+            <img 
+              src={logoImg} 
+              onError={(e) => {
+                if (!e.currentTarget.dataset.fallback) {
+                  e.currentTarget.dataset.fallback = '1';
+                  e.currentTarget.src = './logo.png';
+                } else if (e.currentTarget.dataset.fallback === '1') {
+                  e.currentTarget.dataset.fallback = '2';
+                  e.currentTarget.src = '/logo.png';
+                }
+              }}
+              alt="Thakur Logo" 
+              className="h-12 w-auto object-contain" 
+            />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-heading font-extrabold text-white">
-            Recruiter & Employer Desk
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-            Submit vacancies, monitor applicant resumes, and track recruitment progress with full compliance.
-          </p>
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-semibold mb-2">
+              <Building2 className="w-3.5 h-3.5" />
+              Employer Verification Portal
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-heading font-extrabold text-white">
+              Recruiter & Employer Desk
+              {loggedInUser?.name && (
+                <span className="text-base sm:text-lg font-normal text-amber-300 block sm:inline sm:ml-2">
+                  • {loggedInUser.name}
+                </span>
+              )}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+              Post your company's job requirements here — Thakur Admin verifies and publishes every requirement to job seekers.
+            </p>
+          </div>
         </div>
 
         <button
           onClick={() => setActiveTab('post-job')}
-          className={`px-5 py-3 rounded-2xl text-xs font-bold shadow-lg flex items-center gap-2 transition-transform hover:scale-105 ${themeClasses.primary}`}
+          className={`px-5 py-3 rounded-2xl text-xs font-bold shadow-lg flex items-center gap-2 whitespace-nowrap shrink-0 transition-transform hover:scale-105 cursor-pointer ${themeClasses.primary}`}
         >
           <PlusCircle className="w-4 h-4" />
           <span>Post a New Vacancy</span>
         </button>
       </div>
 
+      {/* 📊 Employer Quick Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+          <span className="text-[11px] font-bold text-slate-400 uppercase">Total Vacancies</span>
+          <p className="font-heading font-extrabold text-2xl text-slate-900 mt-1">{jobs.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+          <span className="text-[11px] font-bold text-slate-400 uppercase">Live & Active</span>
+          <p className="font-heading font-extrabold text-2xl text-emerald-600 mt-1">
+            {jobs.filter(j => j.status === 'active').length}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+          <span className="text-[11px] font-bold text-slate-400 uppercase">Pending Admin Review</span>
+          <p className="font-heading font-extrabold text-2xl text-amber-600 mt-1">
+            {jobs.filter(j => j.status === 'pending').length}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+          <span className="text-[11px] font-bold text-slate-400 uppercase">Applicants</span>
+          <p className="font-heading font-extrabold text-2xl text-indigo-600 mt-1">{applications.length}</p>
+        </div>
+      </div>
+
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-3 border-b border-slate-200 pb-2">
+      <div className="flex flex-wrap items-center gap-2.5 border-b border-slate-200 pb-3">
         <button
           onClick={() => setActiveTab('manage-jobs')}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === 'manage-jobs'
               ? `${themeClasses.primary} shadow-xs`
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -108,7 +188,7 @@ export const EmployerPortal = () => {
 
         <button
           onClick={() => setActiveTab('post-job')}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === 'post-job'
               ? `${themeClasses.primary} shadow-xs`
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -120,7 +200,7 @@ export const EmployerPortal = () => {
 
         <button
           onClick={() => setActiveTab('applicants')}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === 'applicants'
               ? `${themeClasses.primary} shadow-xs`
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -134,7 +214,7 @@ export const EmployerPortal = () => {
       {/* 🚀 TAB 1: MANAGE POSTED VACANCIES */}
       {activeTab === 'manage-jobs' && (
         <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
-          <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div className="p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-heading font-bold text-base text-slate-900">
               Submitted Vacancies & Live Status
             </h3>
@@ -170,23 +250,23 @@ export const EmployerPortal = () => {
                       {job.salary}
                     </td>
                     <td className="p-4">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 whitespace-nowrap">
                         {job.source}
                       </span>
                     </td>
                     <td className="p-4">
                       {job.status === 'active' ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap">
                           <CheckCircle className="w-3.5 h-3.5" />
                           Live & Active
                         </span>
                       ) : job.status === 'pending' ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
                           <Clock className="w-3.5 h-3.5" />
                           Pending Admin Review
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 whitespace-nowrap">
                           Rejected
                         </span>
                       )}
@@ -194,7 +274,7 @@ export const EmployerPortal = () => {
                     <td className="p-4">
                       <button
                         onClick={() => setActiveTab('applicants')}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-600 hover:bg-indigo-50 border border-indigo-200"
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-600 hover:bg-indigo-50 border border-indigo-200 whitespace-nowrap cursor-pointer"
                       >
                         View Resumes
                       </button>
@@ -222,27 +302,29 @@ export const EmployerPortal = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Job Title / Designation *
+                Job Title / Designation * <span className="text-[10px] text-slate-400 font-normal">(Max 100)</span>
               </label>
               <input
                 type="text"
                 required
+                maxLength={100}
                 placeholder="e.g. Senior Java Spring Boot Developer"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value.slice(0, 100) })}
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Hiring Company Name *
+                Hiring Company Name * <span className="text-[10px] text-slate-400 font-normal">(Max 100)</span>
               </label>
               <input
                 type="text"
                 required
+                maxLength={100}
                 value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value.slice(0, 100) })}
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
               />
             </div>
@@ -282,39 +364,42 @@ export const EmployerPortal = () => {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Experience Level
+                Experience Level <span className="text-[10px] text-slate-400 font-normal">(Max 50)</span>
               </label>
               <input
                 type="text"
+                maxLength={50}
                 placeholder="e.g. 2 - 5 Years"
                 value={formData.experience}
-                onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, experience: e.target.value.slice(0, 50) })}
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Annual Salary Package (CTC)
+                Annual Salary Package (CTC) <span className="text-[10px] text-slate-400 font-normal">(Max 60)</span>
               </label>
               <input
                 type="text"
+                maxLength={60}
                 placeholder="e.g. ₹6,00,000 - ₹9,00,000 P.A. or 'Not Disclosed'"
                 value={formData.salary}
-                onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, salary: e.target.value.slice(0, 60) })}
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Job Location / City
+                Job Location / City <span className="text-[10px] text-slate-400 font-normal">(Max 80)</span>
               </label>
               <input
                 type="text"
+                maxLength={80}
                 placeholder="e.g. Noida, Sector 62 / Delhi NCR"
                 value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value.slice(0, 80) })}
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
               />
             </div>
@@ -337,13 +422,14 @@ export const EmployerPortal = () => {
           {formData.applyMode === 'external' && (
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Official Application Destination URL *
+                Official Application Destination URL * <span className="text-[10px] text-slate-400 font-normal">(Max 250)</span>
               </label>
               <input
                 type="url"
+                maxLength={250}
                 placeholder="https://company.com/careers/job-id-123"
                 value={formData.externalUrl}
-                onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value.slice(0, 250) })}
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
               />
             </div>
@@ -351,27 +437,34 @@ export const EmployerPortal = () => {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              Required Skills (Comma separated)
+              Required Skills (Comma separated) <span className="text-[10px] text-slate-400 font-normal">(Max 200)</span>
             </label>
             <input
               type="text"
+              maxLength={200}
               placeholder="e.g. React.js, Tailwind CSS, REST APIs, Git"
               value={formData.skills}
-              onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, skills: e.target.value.slice(0, 200) })}
               className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Job Description *
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-bold text-slate-700">
+                Job Description *
+              </label>
+              <span className="text-[10px] text-slate-400 font-normal">
+                {formData.description.length}/3000 chars
+              </span>
+            </div>
             <textarea
               rows={4}
               required
+              maxLength={3000}
               placeholder="Detailed description of the position..."
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value.slice(0, 3000) })}
               className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
             ></textarea>
           </div>
@@ -415,7 +508,9 @@ export const EmployerPortal = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-sm text-slate-900">{app.jobTitle}</h4>
-                    <p className="text-xs text-slate-500">Candidate: Rahul Verma • Applied: {app.appliedDate}</p>
+                    <p className="text-xs text-slate-500">
+                      Candidate: {app.candidateName || candidateProfile.fullName} • Applied: {app.appliedDate}
+                    </p>
                     <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                       Ref: {app.refCode}
                     </span>

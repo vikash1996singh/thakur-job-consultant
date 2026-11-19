@@ -106,9 +106,10 @@ export const JobSearchPage = () => {
             <Search className="w-4 h-4 text-slate-400 shrink-0" />
             <input
               type="text"
+              maxLength={100}
               placeholder="Search by job title, skills, or company name..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value.slice(0, 100))}
               className="w-full text-xs sm:text-sm bg-transparent focus:outline-none text-slate-800 font-medium"
             />
             {searchQuery && (
@@ -123,9 +124,10 @@ export const JobSearchPage = () => {
             <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
             <input
               type="text"
+              maxLength={80}
               placeholder="Location (e.g. Noida, Delhi NCR, Gurugram)..."
               value={locationFilter}
-              onChange={(e) => setLocationFilter(e.target.value)}
+              onChange={(e) => setLocationFilter(e.target.value.slice(0, 80))}
               className="w-full text-xs sm:text-sm bg-transparent focus:outline-none text-slate-800 font-medium"
             />
             {locationFilter && (

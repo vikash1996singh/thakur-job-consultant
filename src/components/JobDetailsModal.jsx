@@ -48,6 +48,10 @@ export const JobDetailsModal = ({ job, onClose }) => {
       setIsResumeModalOpen(true);
       return;
     }
+    if (coverNote && coverNote.length > 500) {
+      showToast("Cover note cannot exceed 500 characters", "warning");
+      return;
+    }
 
     const success = applyToJob(job, coverNote, screeningAnswers);
     if (success) {
@@ -242,13 +246,16 @@ export const JobDetailsModal = ({ job, onClose }) => {
                   <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">Screening Questions:</p>
                   {job.screeningQuestions.map((q, idx) => (
                     <div key={idx}>
-                      <label className="block text-xs font-medium text-slate-700 mb-1">{q}</label>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">
+                        {q} <span className="text-[10px] text-slate-400">(Max 200 chars)</span>
+                      </label>
                       <input
                         type="text"
+                        maxLength={200}
                         placeholder="Your answer..."
                         required
                         value={screeningAnswers[idx] || ''}
-                        onChange={(e) => setScreeningAnswers({ ...screeningAnswers, [idx]: e.target.value })}
+                        onChange={(e) => setScreeningAnswers({ ...screeningAnswers, [idx]: e.target.value.slice(0, 200) })}
                         className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                       />
                     </div>
@@ -258,13 +265,19 @@ export const JobDetailsModal = ({ job, onClose }) => {
 
               {/* Optional Cover Note */}
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">
-                  Cover Note / Message to Recruiter (Optional)
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-slate-700">
+                    Cover Note / Message to Recruiter (Optional)
+                  </label>
+                  <span className="text-[10px] text-slate-400">
+                    {coverNote.length}/500 chars
+                  </span>
+                </div>
                 <textarea
                   rows={3}
+                  maxLength={500}
                   value={coverNote}
-                  onChange={(e) => setCoverNote(e.target.value)}
+                  onChange={(e) => setCoverNote(e.target.value.slice(0, 500))}
                   placeholder="Introduce yourself briefly or mention key achievements..."
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                 ></textarea>
