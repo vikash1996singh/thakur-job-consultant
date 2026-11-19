@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { initialJobs, initialCompanies, initialCandidateProfile, initialApplications } from '../data/mockData';
+import api from '../services/api';
 
 const AppContext = createContext();
 
@@ -142,6 +143,37 @@ export const AppProvider = ({ children }) => {
       // ignore storage quota issues
     }
   }, [jobs, companies, candidateProfile, applications, submittedResumes, siteSettings, adminCreds, registeredUsers]);
+
+  // Dynamic Backend Sync: Load live data from Spring Boot + PostgreSQL
+  useEffect(() => {
+    let isMounted = true;
+    const syncWithBackend = async () => {
+      try {
+        const [jobsRes, compsRes, settingsRes] = await Promise.allSettled([
+          api.jobs.getAll(),
+          api.companies.getAll(),
+          api.settings.get()
+        ]);
+
+        if (!isMounted) return;
+
+        if (jobsRes.status === 'fulfilled' && jobsRes.value?.success && Array.isArray(jobsRes.value.data) && jobsRes.value.data.length > 0) {
+          setJobs(jobsRes.value.data);
+        }
+        if (compsRes.status === 'fulfilled' && compsRes.value?.success && Array.isArray(compsRes.value.data) && compsRes.value.data.length > 0) {
+          setCompanies(compsRes.value.data);
+        }
+        if (settingsRes.status === 'fulfilled' && settingsRes.value?.success && settingsRes.value.data) {
+          setSiteSettings(settingsRes.value.data);
+        }
+      } catch (err) {
+        // Fallback to local storage
+      }
+    };
+
+    syncWithBackend();
+    return () => { isMounted = false; };
+  }, []);
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -481,6 +513,8 @@ export const AppProvider = ({ children }) => {
     setApplications(prev => [newApp, ...prev]);
     setApplicationSuccessData(newApp);
     showToast(`Successfully applied to ${job.company}!`, "success");
+    // Async sync to Spring Boot
+    api.applications.publicApply(newApp).catch(() => {});
     return true;
   };
 
@@ -495,6 +529,8 @@ export const AppProvider = ({ children }) => {
       sourceType: 'company'
     };
     setJobs(prev => [jobWithMeta, ...prev]);
+    // Async sync to Spring Boot
+    api.jobs.create(jobWithMeta).catch(() => {});
 
     const compName = (newJobData.company || '').trim();
     if (compName) {
@@ -524,21 +560,27 @@ export const AppProvider = ({ children }) => {
   const approveJob = (jobId) => {
     setJobs(prev => prev.map(j => j.id === jobId ? { ...j, status: 'active' } : j));
     showToast("Job approved and published to public search!", "success");
+    // Async sync to Spring Boot
+    api.admin.approveJob(jobId).catch(() => {});
   };
 
   const rejectJob = (jobId, reason = "Information mismatch") => {
     setJobs(prev => prev.map(j => j.id === jobId ? { ...j, status: 'rejected', rejectionReason: reason } : j));
     showToast("Job marked as rejected.", "info");
+    // Async sync to Spring Boot
+    api.admin.rejectJob(jobId).catch(() => {});
   };
 
   const verifyCompany = (companyId) => {
     setCompanies(prev => prev.map(c => c.id === companyId ? { ...c, verified: true } : c));
     showToast("Company verified successfully with blue badge!", "success");
+    api.companies.toggleVerify(companyId).catch(() => {});
   };
 
   const toggleCompanyVerify = (companyId) => {
     setCompanies(prev => prev.map(c => c.id === companyId ? { ...c, verified: !c.verified } : c));
     showToast("Company verification status updated!", "success");
+    api.companies.toggleVerify(companyId).catch(() => {});
   };
 
   const adminAddCompany = (compData) => {
