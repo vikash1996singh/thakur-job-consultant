@@ -3,12 +3,15 @@ package com.thakur.jobconsultancy.controller;
 import com.thakur.jobconsultancy.dto.ApiResponse;
 import com.thakur.jobconsultancy.entity.SiteSettings;
 import com.thakur.jobconsultancy.service.AdminService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/settings")
+@Tag(name = "6. Site Settings", description = "Public website configuration, contact information & social links")
 public class SiteSettingsController {
 
     @Autowired

@@ -7,6 +7,8 @@ import com.thakur.jobconsultancy.dto.RegisterRequest;
 import com.thakur.jobconsultancy.entity.User;
 import com.thakur.jobconsultancy.service.AuthService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "1. Authentication", description = "User Registration, Login, Admin Authentication & Profile")
 public class AuthController {
 
     @Autowired

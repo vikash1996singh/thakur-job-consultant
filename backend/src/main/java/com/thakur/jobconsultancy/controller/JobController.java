@@ -5,6 +5,8 @@ import com.thakur.jobconsultancy.dto.StatusUpdateRequest;
 import com.thakur.jobconsultancy.entity.Job;
 import com.thakur.jobconsultancy.entity.User;
 import com.thakur.jobconsultancy.service.JobService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/jobs")
+@Tag(name = "2. Jobs Management", description = "Public Job browsing, filtering, search and Admin Job CRUD")
 public class JobController {
 
     @Autowired

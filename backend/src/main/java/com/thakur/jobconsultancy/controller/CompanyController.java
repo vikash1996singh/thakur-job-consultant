@@ -3,6 +3,8 @@ package com.thakur.jobconsultancy.controller;
 import com.thakur.jobconsultancy.dto.ApiResponse;
 import com.thakur.jobconsultancy.entity.Company;
 import com.thakur.jobconsultancy.service.CompanyService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/companies")
+@Tag(name = "5. Companies", description = "Featured partner companies and hiring organizations")
 public class CompanyController {
 
     @Autowired

@@ -6,6 +6,8 @@ import com.thakur.jobconsultancy.dto.StatusUpdateRequest;
 import com.thakur.jobconsultancy.entity.JobApplication;
 import com.thakur.jobconsultancy.entity.User;
 import com.thakur.jobconsultancy.service.ApplicationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/applications")
+@Tag(name = "3. Job Applications", description = "Candidate Applications, Public Apply and Application Status Management")
 public class ApplicationController {
 
     @Autowired
