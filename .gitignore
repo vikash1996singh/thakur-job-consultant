@@ -23,3 +23,9 @@ git.cmd
 *.njsproj
 *.sln
 *.sw?
+
+# Backend build & binaries
+backend/target/
+backend/apache-maven-*/
+backend/data/
+backend/uploads/
