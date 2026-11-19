@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/settings/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                 // Public Job browsing (GET is open, POST/PUT requires auth)
                 .requestMatchers(HttpMethod.GET, "/api/jobs/**").permitAll()
