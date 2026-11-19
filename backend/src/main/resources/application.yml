@@ -12,7 +12,7 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:thakur_jobs_db}?sslmode=prefer
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    password: ${DB_PASSWORD:Vikash@12345}
     driver-class-name: org.postgresql.Driver
   
   jpa:
